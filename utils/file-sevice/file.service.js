@@ -8,8 +8,7 @@ const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
 
 class FileService {
-
-
+    
     logIsFileExists(dir) {
         if (fs.existsSync(dir)) {
             console.log(`the file ${dir} exists.`);
@@ -46,16 +45,13 @@ class FileService {
     }
 
     async moveFileLocation(fromFile, toFile) {
-        //const uploadedFolderPath = path.join(__dirname, '../../') + 'tmp/uploads/';
-        //const targetFolderPath = path.join(__dirname, '../../') + 'tmp/input/analyzedAlgo/';
-        //return await rename(uploadedFolderPath + upFileName, targetFolderPath + toFileName);
         await rename(fromFile, toFile);
         this.logIsFileExists(toFile);
         return; 
     }
 
     async writeFileContant (file, contant) {
-        console.log(`writeFileContant(${file, contant})`);
+        //console.log(`writeFileContant(${file, contant})`);
         try {
             return await writeFile(file, contant);
         } catch (e) {

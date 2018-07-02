@@ -14,8 +14,6 @@ const env = process.env.NODE_ENV || 'development';
 
 class AnalysisService {
 
-    
-
     constructor() {
         console.log('AnalysisService.constructor()');
         this.analysisRequestId = uuidv1();
@@ -75,14 +73,14 @@ class AnalysisService {
         // STEP 6 - run a-s 
         try {
             const asRes = await this.runAS(id);
-            console.log(asRes);
+            asRes? console.log(asRes.complexity) : null;
+            return asRes;
         } catch (error) {
             console.error(error);
             throw new Error('analysisProcces fail in step 6.');
         }
 
-        const finaleRes = JSON.parse(asRes);
-        return finaleRes;
+
     }
 
 
@@ -119,7 +117,6 @@ class AnalysisService {
         const citJarPath = this.analysisPaths.analysisResourcesFolder + '/algorithm/c-i-t.jar';
 
         await this.execJar(citJarPath, `${citParam01} ${citParam02} ${citParam03} ${citParam04} ${citParam05} ${citParam06}`);
-
     }
 
     async runAS(id) {
@@ -129,7 +126,8 @@ class AnalysisService {
         const asParam04 = this.analysisPaths.analysisResourcesFolder + `/samples-json/q0${id}-sample.json`;
         const asJarPath = this.analysisPaths.analysisResourcesFolder + '/algorithm/a-s.jar';
 
-        await this.execJar(asJarPath, `${asParam01} ${asParam02} ${asParam03} ${asParam04}`);
+        const asRes = await this.execJar(asJarPath, `${asParam01} ${asParam02} ${asParam03} ${asParam04}`);
+        return JSON.parse(asRes);
     }
 
 
@@ -172,7 +170,7 @@ class AnalysisService {
         try {
             const { stdout, stderr } = await exec(`java -jar ${jarPath} ${appArgs}`);
             console.log('Output -> ' + stdout);
-            console.log('Error -> ' + stderr);
+            // console.log('Error -> ' + stderr);
             if (stderr) {
                 throw new Error(stderr);
             }
