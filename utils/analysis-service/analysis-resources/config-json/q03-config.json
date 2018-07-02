@@ -1,0 +1,13 @@
+{
+    "className": "AlgoImpl",
+    "packageName": "injectedCode",
+    "importsCodeLine": [
+        "import algorithmInterface.*;"
+    ],
+    "extendsClasses": null,
+    "implementsClasses": [
+        "MergeSortAlgorithm"
+    ],
+    "classMembersCodeLines": null,
+    "classMethodCodeLines": null
+}
