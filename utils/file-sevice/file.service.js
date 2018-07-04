@@ -1,14 +1,17 @@
 const path = require('path');
 const util = require('util');
 const fs = require('fs');
+const rf = require('rimraf');
 
 const rename = util.promisify(fs.rename);
 const unlink = util.promisify(fs.unlink);
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
 
+ 
+
 class FileService {
-    
+
     logIsFileExists(dir) {
         if (fs.existsSync(dir)) {
             console.log(`the file ${dir} exists.`);
@@ -26,6 +29,15 @@ class FileService {
             console.log('error reading the file.');
             //console.log(e);
         }
+    }
+
+    async removeFile(_path) {
+        console.log(res);
+        /*
+        if (fs.existsSync(_path)) {
+            fs.unlinkSync(_path);
+        }
+        */
     }
 
     createFile(dir) {
@@ -47,10 +59,10 @@ class FileService {
     async moveFileLocation(fromFile, toFile) {
         await rename(fromFile, toFile);
         this.logIsFileExists(toFile);
-        return; 
+        return;
     }
 
-    async writeFileContant (file, contant) {
+    async writeFileContant(file, contant) {
         //console.log(`writeFileContant(${file, contant})`);
         try {
             return await writeFile(file, contant);
@@ -58,7 +70,25 @@ class FileService {
             throw e;
         }
     }
+
+    removeFilesInDir(dir) {
+        
+        rf(dir, function () { 
+            console.log('done'); 
+            if (fs.existsSync(dir)) {
+                console.log(`the file ${dir} exists.`);
+            } else {
+                console.log(`the file ${dir} not exists.`);
+            }
+        });
+        // const res = await rf(dir, function () { console.log('done'); });
+        
+        // console.log(res);
+    }
 }
+
+
+
 
 module.exports = {
     FileService

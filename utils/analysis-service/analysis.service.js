@@ -33,20 +33,25 @@ class AnalysisService {
         try {
             await this.codeToClass(id, code);
         } catch (error) {
+            console.warn('**** analysisProcces fail in step 1. ****')
             console.error(error);
             throw new Error('analysisProcces fail in step 1.');
         }
 
         // STEP 2 - format the code !!!
-
+        // https://github.com/google/google-java-format
 
 
         // STEP 3 - compile the file with the target code
         try {
-            await this.compileJava(this.analysisPaths.codeToAnalyzeFileNoExtention + '.java');
+            const stderr = await this.compileJava(this.analysisPaths.codeToAnalyzeFileNoExtention + '.java');
+            if(stderr) {
+                throw stderr;
+            }
         } catch (error) {
+            console.warn('**** analysisProcces fail in step 3. ****')
             console.error(error);
-            throw new Error('analysisProcces fail in step 3.');
+            throw error;// new Error('analysisProcces fail in step 3.');
         }
 
         // STEP 4 - run c-i-t 
@@ -54,6 +59,7 @@ class AnalysisService {
             await this.runCIT(id);
 
         } catch (error) {
+            console.warn('**** analysisProcces fail in step 4. ****')
             console.error(error);
             throw new Error('analysisProcces fail in step 4.');
         }
@@ -66,6 +72,7 @@ class AnalysisService {
             ]);
 
         } catch (error) {
+            console.warn('**** analysisProcces fail in step 5. ****')
             console.error(error);
             throw new Error('analysisProcces fail in step 5.');
         }
@@ -76,6 +83,7 @@ class AnalysisService {
             asRes? console.log(asRes.complexity) : null;
             return asRes;
         } catch (error) {
+            console.warn('**** analysisProcces fail in step 6. ****')
             console.error(error);
             throw new Error('analysisProcces fail in step 6.');
         }
@@ -136,6 +144,7 @@ class AnalysisService {
     * @description compile java file / generate a class file for a .java file.
     * @param {string} javaFilePath absolute path to the target java file to compile. 
     * @param {string} jarsArray array of jars (absolute path to jar file) dependencies. 
+    * @returns {string} if any compiler error accrued returned them, otherways returned undefined.
     */
     async compileJava(codeFilePath, jarsDependencies) {
 
@@ -156,9 +165,10 @@ class AnalysisService {
         try {
             const { stdout, stderr } = await exec(`javac -cp "${jarArgs}" ${codeFilePath} -parameters`);
             //console.log('Output -> ' + stdout);
-            if (stderr) {
-                throw new Error(stderr);
-            }
+            console.log('from compileJava ' + stderr)
+            
+            return stderr;
+            
         } catch (e) {
             throw e
         }
@@ -195,7 +205,7 @@ class AnalysisService {
 
         fileService.createDir(tmpReqIdPath + '/output');
         fileService.createDir(tmpReqIdPath + '/output/injectedCode');
-        fileService.createDir(tmpReqIdPath + '/output/jars');
+        // fileService.createDir(tmpReqIdPath + '/output/jars');
         fileService.createFile(tmpReqIdPath + '/output/injectedCode/AlgoImpl.java');
 
         /*
@@ -230,6 +240,32 @@ class AnalysisService {
         console.log(JSON.stringify(this.analysisPaths, undefined, 2));
     }
 
+
+    async flushTmpFolder() {
+     /*
+        await fileService.removeFile(this.analysisPaths.injectedCodeFileNoExtention+'.java');
+        await fileService.removeFile(this.analysisPaths.injectedCodeFileNoExtention+'.class');
+        await fileService.removeFile(this.analysisPaths.codeToAnalyzeFileNoExtention+'.java');
+        await fileService.removeFile(this.analysisPaths.codeToAnalyzeFileNoExtention+'.class');
+        await fileService.removeFile(this.analysisPaths.tmpReqIdFolder+'/temp'+'/rfm.txt');
+*/
+        await fileService.removeDir(path.join(__dirname, '../../tmp/'));
+        /*
+        fileService.removeEmptyDir(this.analysisPaths.analyzedAlgoFolder+'/');
+        fileService.removeEmptyDir(this.analysisPaths.tmpReqIdFolder + '/input/');
+        fileService.removeEmptyDir(this.analysisPaths.tmpReqIdFolder + '/output/injectedCode/');
+        fileService.removeEmptyDir(this.analysisPaths.tmpReqIdFolder + '/output/');
+        fileService.removeEmptyDir(this.analysisPaths.tmpReqIdFolder+'/temp/');
+*/
+
+
+        // fileService.removeEmptyDir(path.join(__dirname, '../../tmp/', this.analysisRequestId));
+    }
+
+    filterErrorMessage(javaCompilerError) {
+        
+
+    }
 }
 
 module.exports = {

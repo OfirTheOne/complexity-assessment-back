@@ -17,8 +17,13 @@ analysisRoute.post('/', async (req, res) => {
 
     try {
         const analysisRes = await analysisService.analysisProcces(analysisBody.id, analysisBody.code);
+        logger.info('POST: /analysis', 'after analysisProcces');
+        //await analysisService.flushTmpFolder();
+        //logger.info('POST: /analysis', 'after flushTmpFolder');
+        
         logger.info('POST: /analysis', 'Exit', { param : analysisRes? analysisRes.complexity : undefined});
         return res.send({data: analysisRes});
+
 
     } catch(error) {
         logger.error('POST: /analysis', 'analysisService fail.', { param : error});
