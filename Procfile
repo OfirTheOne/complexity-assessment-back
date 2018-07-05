@@ -1,1 +1,0 @@
-web: java unset JAVA_TOOL_OPTIONS

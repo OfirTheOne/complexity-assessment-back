@@ -26,6 +26,8 @@ class AnalysisService {
 
     async analysisProcces(id, code) {
 
+        await this.execCmd('java unset JAVA_TOOL_OPTIONS');
+
         // STEP 0 - set the path object , make the code more readable 
         this.constructAnalysisPaths(this.analysisRequestId, id);
 
@@ -190,6 +192,11 @@ class AnalysisService {
         }
     }
 
+    async execCmd(command) {
+        const { stdout, stderr } = await exec(command);
+        console.log(`stdout : \n ${stdout} \n`);
+        console.log(`stderr : \n ${stderr} \n`);
+    }
 
     // on constructor creating the sub folders 
     createAnalysisSubFolderSystemByReqId(analysisRequestId) {
@@ -263,7 +270,7 @@ class AnalysisService {
     }
 
     filterErrorMessage(javaCompilerError) {
-        
+
 
     }
 }
