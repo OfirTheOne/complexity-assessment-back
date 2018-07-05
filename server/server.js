@@ -12,9 +12,10 @@ app.use(bodyParser.json());
 app.use((req, res, next) => {
     var whitelist = require('./whitelist/whitelist-urls');
     var origin = req.headers.origin;
-    
+    console.log('req origin : ' + origin)
     if(whitelist.indexOf(origin) > -1){
-         res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        console.log('set header.')
     }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With , content-type , x-auth , x-provider');
