@@ -167,12 +167,12 @@ class AnalysisService {
         try {
             const { stdout, stderr } = await exec(`javac -cp "${jarArgs}" ${codeFilePath} -parameters`);
             //console.log('Output -> ' + stdout);
-            console.log('from compileJava ' + stderr)
+            console.log('from compileJava ' + stderr);
             
             return this.JAVA_TOOLS_OPTIONS_errorSilence(stderr);
             
         } catch (e) {
-            throw e
+            throw this.JAVA_TOOLS_OPTIONS_errorSilence(e);
         }
 
     }
@@ -184,7 +184,7 @@ class AnalysisService {
             // console.log('Output -> ' + stdout);
             // console.log('Error -> ' + stderr);
             if (this.JAVA_TOOLS_OPTIONS_errorSilence(stderr)) {
-                throw new Error(stderr);
+                throw this.JAVA_TOOLS_OPTIONS_errorSilence(stderr);
             }
             return stdout;
         } catch (e) {
