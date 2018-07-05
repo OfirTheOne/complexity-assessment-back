@@ -26,7 +26,7 @@ class AnalysisService {
 
     async analysisProcces(id, code) {
 
-        await this.execCmd('java unset JAVA_TOOL_OPTIONS');
+        //await this.execCmd('java unset JAVA_TOOL_OPTIONS');
 
         // STEP 0 - set the path object , make the code more readable 
         this.constructAnalysisPaths(this.analysisRequestId, id);
@@ -169,7 +169,7 @@ class AnalysisService {
             //console.log('Output -> ' + stdout);
             console.log('from compileJava ' + stderr)
             
-            return stderr;
+            return this.JAVA_TOOLS_OPTIONS_errorSilence(stderr);
             
         } catch (e) {
             throw e
@@ -181,9 +181,9 @@ class AnalysisService {
         console.log(`execJar(${jarPath}, ${appArgs})`);
         try {
             const { stdout, stderr } = await exec(`java -jar ${jarPath} ${appArgs}`);
-            console.log('Output -> ' + stdout);
+            // console.log('Output -> ' + stdout);
             // console.log('Error -> ' + stderr);
-            if (stderr) {
+            if (this.JAVA_TOOLS_OPTIONS_errorSilence(stderr)) {
                 throw new Error(stderr);
             }
             return stdout;
@@ -272,6 +272,16 @@ class AnalysisService {
     filterErrorMessage(javaCompilerError) {
 
 
+    }
+
+    JAVA_TOOLS_OPTIONS_errorSilence(errorMessage) {
+        const expectedMessage = "Error: Picked up JAVA_TOOL_OPTIONS: -Xmx300m -Xss512k -Dfile.encoding=UTF-8";
+        let silencedMessage;
+        if(errorMessage && expectedMessage != errorMessage) {
+            silencedMessage = errorMessage.replace('Error: Picked up JAVA_TOOL_OPTIONS: -Xmx300m -Xss512k -Dfile.encoding=UTF-8', "")
+            console.log(`silencedMessage :  ${silencedMessage} `);
+        }
+        return silencedMessage;
     }
 }
 
