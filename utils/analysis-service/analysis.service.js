@@ -275,9 +275,8 @@ class AnalysisService {
     JAVA_TOOLS_OPTIONS_errorSilence(errorMessage) {
         const expectedMessage = "Picked up JAVA_TOOL_OPTIONS: -Xmx300m -Xss512k -Dfile.encoding=UTF-8";
         let silencedMessage;
-        const trimErrMsg = errorMessage;// .trim();
-        if(errorMessage && expectedMessage != trimErrMsg) {
-            silencedMessage = trimErrMsg.replace('Picked up JAVA_TOOL_OPTIONS: -Xmx300m -Xss512k -Dfile.encoding=UTF-8', "")
+        if(errorMessage && expectedMessage != errorMessage) {
+            silencedMessage = errorMessage.replace('Picked up JAVA_TOOL_OPTIONS: -Xmx300m -Xss512k -Dfile.encoding=UTF-8', "")
             console.log(`silencedMessage :  ${silencedMessage} `);
             if(silencedMessage == "") {
                 silencedMessage = undefined;
