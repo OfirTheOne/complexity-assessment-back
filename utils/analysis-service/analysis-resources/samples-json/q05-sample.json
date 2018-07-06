@@ -1,0 +1,7 @@
+{
+    "aid": 5,
+    "algo_name": "insert in binary tree",
+    "comlexity_name_space": 2,
+    "input_object_paths": [ "path to object 01", "path to object 02", "path to object 03" ],
+    "input_values": [ 340, 104, 17 ]
+}

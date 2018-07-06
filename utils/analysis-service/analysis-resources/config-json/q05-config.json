@@ -1,0 +1,13 @@
+{
+    "className": "AlgoImpl",
+    "packageName": "injectedCode",
+    "importsCodeLine": [
+        "import algorithmInterface.*;"
+    ],
+    "extendsClasses": null,
+    "implementsClasses": [
+        "InsertElementInBinTreeAlgorithm"
+    ],
+    "classMembersCodeLines": null,
+    "classMethodCodeLines": null
+}
