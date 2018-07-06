@@ -6,7 +6,7 @@
     ],
     "extendsClasses": null,
     "implementsClasses": [
-        "InsertElementInBinTreeAlgorithm"
+        "BinarySearchAlgorithm"
     ],
     "classMembersCodeLines": null,
     "classMethodCodeLines": null

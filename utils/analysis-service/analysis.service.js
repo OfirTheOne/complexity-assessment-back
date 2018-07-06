@@ -26,8 +26,6 @@ class AnalysisService {
 
     async analysisProcces(id, code) {
 
-        //await this.execCmd('java unset JAVA_TOOL_OPTIONS');
-
         // STEP 0 - set the path object , make the code more readable 
         this.constructAnalysisPaths(this.analysisRequestId, id);
 
