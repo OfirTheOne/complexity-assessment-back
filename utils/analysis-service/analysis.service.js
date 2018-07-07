@@ -167,7 +167,7 @@ class AnalysisService {
             //console.log('Output -> ' + stdout);
             console.log('from compileJava ' + stderr);
             
-            return this.JAVA_TOOLS_OPTIONS_errorSilence(stderr);
+            return undefined; // this.JAVA_TOOLS_OPTIONS_errorSilence(stderr);
             
         } catch (e) {
             throw this.JAVA_TOOLS_OPTIONS_errorSilence(e);
