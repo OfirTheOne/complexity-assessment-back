@@ -1,15 +1,17 @@
 
-const util = require('util');
 const path = require('path');
 const uuidv1 = require('uuid/v1');
 
-const exec = util.promisify(require('child_process').exec);
-const questionsNamesTable = require('./questionsNamesTable.json');
+const questionsParamsTable = require('./questionsParamsTable.json');
+
+const { JavaService } = require('../java-service/java.service');
 
 const { FileService } = require('../file-sevice/file.service');
+
+const javaService = new JavaService();
 const fileService = new FileService();
 
-const env = process.env.NODE_ENV || 'development';
+
 
 
 class AnalysisService {
@@ -44,9 +46,9 @@ class AnalysisService {
 
         // STEP 3 - compile the file with the target code
         try {
-            const stderr = await this.compileJava(this.analysisPaths.codeToAnalyzeFileNoExtention + '.java');
+            const stderr = await javaService.compileJava(this.analysisPaths.codeToAnalyzeFileNoExtention + '.java');
             if(stderr) {
-                throw stderr;
+                return {stderr};
             }
         } catch (error) {
             console.warn('**** analysisProcces fail in step 3. ****')
@@ -66,7 +68,7 @@ class AnalysisService {
 
         // STEP 5 - compile the injected code (output  code of cit)
         try {
-            await this.compileJava(this.analysisPaths.injectedCodeFileNoExtention + '.java', [
+            await javaService.compileJava(this.analysisPaths.injectedCodeFileNoExtention + '.java', [
                 this.analysisPaths.analysisResourcesFolder + '/jars/algorithmInterface.jar',
                 this.analysisPaths.analysisResourcesFolder + '/jars/analyzerAbs.jar'
             ]);
@@ -96,13 +98,13 @@ class AnalysisService {
 
     async codeToClass(id, code) {
         // construct the new file path (name included)
-        const newFilePath = this.analysisPaths.analyzedAlgoFolder + questionsNamesTable[`${id}`] + '.java';
+        const newFilePath = this.analysisPaths.analyzedAlgoFolder + questionsParamsTable[`${id}`].className + '.java';
 
         // creating the new file
         fileService.createFile(newFilePath);
 
         // construct the new file contant (wrapping the code inside a class)
-        const topCode = `package analyzedAlgo;\n` + `public class ` + questionsNamesTable[`${id}`] + ` {\n`;
+        const topCode = `package analyzedAlgo;\n` + `public class ` + questionsParamsTable[`${id}`].className + ` {\n`;
         const bottomCode = `\n}`;
         const classContant = topCode + code + bottomCode;
 
@@ -120,11 +122,11 @@ class AnalysisService {
         const citParam02 = this.analysisPaths.tmpReqIdFolder + '/temp/rfm.txt'; // rmp
         const citParam03 = this.analysisPaths.injectedCodeFileNoExtention + '.java'; // fnl
         const citParam04 = this.analysisPaths.tmpReqIdFolder + '/input/'; // orgFilePath
-        const citParam05 = `analyzedAlgo.${questionsNamesTable[`${id}`]}`; // orgClassName
+        const citParam05 = `analyzedAlgo.${questionsParamsTable[`${id}`].className}`; // orgClassName
         const citParam06 = this.analysisPaths.analysisResourcesFolder + `/config-json/q0${id}-config.json`;
         const citJarPath = this.analysisPaths.analysisResourcesFolder + '/algorithm/c-i-t.jar';
 
-        await this.execJar(citJarPath, `${citParam01} ${citParam02} ${citParam03} ${citParam04} ${citParam05} ${citParam06}`);
+        await javaService.execJar(citJarPath, `${citParam01} ${citParam02} ${citParam03} ${citParam04} ${citParam05} ${citParam06}`);
     }
 
     async runAS(id) {
@@ -134,67 +136,11 @@ class AnalysisService {
         const asParam04 = this.analysisPaths.analysisResourcesFolder + `/samples-json/q0${id}-sample.json`;
         const asJarPath = this.analysisPaths.analysisResourcesFolder + '/algorithm/a-s.jar';
 
-        const asRes = await this.execJar(asJarPath, `${asParam01} ${asParam02} ${asParam03} ${asParam04}`);
+        const asRes = await javaService.execJar(asJarPath, `${asParam01} ${asParam02} ${asParam03} ${asParam04}`);
         return JSON.parse(asRes);
     }
 
 
-
-    /**
-    * @description compile java file / generate a class file for a .java file.
-    * @param {string} javaFilePath absolute path to the target java file to compile. 
-    * @param {string} jarsArray array of jars (absolute path to jar file) dependencies. 
-    * @returns {string} if any compiler error accrued returned them, otherways returned undefined.
-    */
-    async compileJava(codeFilePath, jarsDependencies) {
-
-        console.log(`compileJava(${codeFilePath}, ${jarsDependencies})`);
-        let jarArgs;
-        const separationToken = (env == 'development') ? ';' : ':';
-
-        if (jarsDependencies) {
-            jarArgs = ``;
-            for (let i = 0; i < jarsDependencies.length; i++) {
-                jarArgs += (i < jarsDependencies.length - 1) ? 
-                    `${jarsDependencies[i]}${separationToken}` : `${jarsDependencies[i]}`;
-            }
-        } else {
-            jarArgs = `.${separationToken}`;
-        }
-
-        try {
-            const { stdout, stderr } = await exec(`javac -cp "${jarArgs}" ${codeFilePath} -parameters`);
-            //console.log('Output -> ' + stdout);
-            console.log('from compileJava ' + stderr);
-            
-            return undefined; // this.JAVA_TOOLS_OPTIONS_errorSilence(stderr);
-            
-        } catch (e) {
-            throw this.JAVA_TOOLS_OPTIONS_errorSilence(e);
-        }
-
-    }
-
-    async execJar(jarPath, appArgs) {
-        console.log(`execJar(${jarPath}, ${appArgs})`);
-        try {
-            const { stdout, stderr } = await exec(`java -jar ${jarPath} ${appArgs}`);
-            // console.log('Output -> ' + stdout);
-            // console.log('Error -> ' + stderr);
-            if (this.JAVA_TOOLS_OPTIONS_errorSilence(stderr)) {
-                throw this.JAVA_TOOLS_OPTIONS_errorSilence(stderr);
-            }
-            return stdout;
-        } catch (e) {
-            throw e
-        }
-    }
-
-    async execCmd(command) {
-        const { stdout, stderr } = await exec(command);
-        console.log(`stdout : \n ${stdout} \n`);
-        console.log(`stderr : \n ${stderr} \n`);
-    }
 
     // on constructor creating the sub folders 
     createAnalysisSubFolderSystemByReqId(analysisRequestId) {
@@ -239,7 +185,7 @@ class AnalysisService {
             tmpReqIdFolder,
             analysisResourcesFolder,
             analyzedAlgoFolder: tmpReqIdFolder + '/input/analyzedAlgo/',
-            codeToAnalyzeFileNoExtention: tmpReqIdFolder + '/input/analyzedAlgo/' + questionsNamesTable[`${id}`],
+            codeToAnalyzeFileNoExtention: tmpReqIdFolder + '/input/analyzedAlgo/' + questionsParamsTable[`${id}`].className,
             injectedCodeFileNoExtention: tmpReqIdFolder + '/output/injectedCode/AlgoImpl',
         }
         console.log(JSON.stringify(this.analysisPaths, undefined, 2));
@@ -267,27 +213,6 @@ class AnalysisService {
         // fileService.removeEmptyDir(path.join(__dirname, '../../tmp/', this.analysisRequestId));
     }
 
-    filterErrorMessage(javaCompilerError) {
-
-
-    }
-
-    JAVA_TOOLS_OPTIONS_errorSilence(errorMessage) {
-        let silencedMessage;
-        const expectedMessage = "Picked up JAVA_TOOL_OPTIONS: -Xmx300m -Xss512k -Dfile.encoding=UTF-8";
-
-        if(errorMessage && typeof errorMessage == 'string') {
-            const trimErrorMsg = errorMessage.trim();
-            if(expectedMessage != trimErrorMsg) {
-                silencedMessage = trimErrorMsg.replace('Picked up JAVA_TOOL_OPTIONS: -Xmx300m -Xss512k -Dfile.encoding=UTF-8', "")
-                console.log(`silencedMessage :  ${silencedMessage} `);
-                if(silencedMessage == "") {
-                    silencedMessage = undefined;
-                }
-            }
-        }
-        return silencedMessage;
-    }
 }
 
 module.exports = {
