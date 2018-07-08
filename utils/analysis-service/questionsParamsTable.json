@@ -1,0 +1,7 @@
+{
+    "1" : {"className":  "FindMaxInArray", "interfaceName": "FindMaxInArrayAlgorithm"},
+    "2" : {"className":  "BubbleSort", "interfaceName": "BubbleSortAlgorithm"},
+    "3" : {"className":  "MargeSort", "interfaceName": "MargeSortAlgorithm"},
+    "4" : {"className":  "BinarySearch", "interfaceName": "BinarySearchAlgorithm"},
+    "5" : {"className":  "", "interfaceName": ""}
+}
