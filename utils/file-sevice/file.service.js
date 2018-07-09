@@ -95,7 +95,7 @@ class FileService {
 
         } else {
             await exec(`rm -rf ${dir}`)
-
+            this.logIsFileExists(dir);
         }
     }
 }
