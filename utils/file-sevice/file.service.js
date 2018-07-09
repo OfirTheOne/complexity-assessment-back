@@ -1,7 +1,6 @@
 const path = require('path');
 const util = require('util');
 const fs = require('fs');
-const rf = require('rimraf');
 
 const exec = util.promisify(require('child_process').exec);
 const rename = util.promisify(fs.rename);

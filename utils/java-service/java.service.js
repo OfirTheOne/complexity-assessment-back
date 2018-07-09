@@ -38,7 +38,6 @@ class JavaService {
             throw error;
         }
         const dir = path.join(__dirname, '../../tmp', reqId);
-        console.log('rm -rf - '+ dir);
         fileService.removeDirRecursive(dir);
         return stderr ? { stderr } : undefined;
     }
@@ -69,10 +68,12 @@ class JavaService {
         try {
             const { stdout, stderr } = await exec(`javac -cp "${jarArgs}" ${codeFilePath} -parameters`);
             //console.log('Output -> ' + stdout);
-            silencedMsg = this.JAVA_TOOLS_OPTIONS_errorSilence(stderr);
+            silencedMsg = silencedMsg = this.JAVA_TOOLS_OPTIONS_errorSilence(stderr);
+            this.filterErrorMessage(silencedMsg, codeFilePath);
 
         } catch (e) {
             silencedMsg = this.JAVA_TOOLS_OPTIONS_errorSilence(e.stderr ? e.stderr : e);
+            silencedMsg = this.filterErrorMessage(silencedMsg, codeFilePath);
             console.log(' ********* from compileJava after ********* \n' + silencedMsg);
 
         }
@@ -143,8 +144,15 @@ class JavaService {
         return silencedMessage;
     }
 
-    filterErrorMessage(javaCompilerError) {
+    filterErrorMessage(javaCompilerError, dirToRemove) {
+        console.log('filterErrorMessage ' + typeof javaCompilerError)
+        if(typeof javaCompilerError == 'string') {
+            const dir = path.normalize(dirToRemove);
+            console.log('filterErrorMessage ' + dir)
 
+            return javaCompilerError.replace(dir, 'line ');
+        } 
+        return javaCompilerError;
 
     }
 }
