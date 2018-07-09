@@ -3,10 +3,13 @@ const util = require('util');
 const fs = require('fs');
 const rf = require('rimraf');
 
+const exec = util.promisify(require('child_process').exec);
 const rename = util.promisify(fs.rename);
 const unlink = util.promisify(fs.unlink);
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
+
+const env = process.env.NODE_ENV || 'development';
 
  
 
@@ -84,6 +87,16 @@ class FileService {
         // const res = await rf(dir, function () { console.log('done'); });
         
         // console.log(res);
+    }
+
+    async removeDirRecursive(dir) {
+        if(env == 'development') {
+            // await exec(`rd /s /q "${dir}"`)
+
+        } else {
+            await exec(`rm -rf ${dir}`)
+
+        }
     }
 }
 

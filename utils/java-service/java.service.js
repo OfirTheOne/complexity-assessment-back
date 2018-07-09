@@ -37,6 +37,9 @@ class JavaService {
         catch (error) {
             throw error;
         }
+        const dir = path.join(__dirname, '../../tmp', reqId);
+        console.log('rm -rf - '+ dir);
+        fileService.removeDirRecursive(dir);
         return stderr ? { stderr } : undefined;
     }
 
