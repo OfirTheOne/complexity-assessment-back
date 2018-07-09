@@ -69,11 +69,11 @@ class JavaService {
             const { stdout, stderr } = await exec(`javac -cp "${jarArgs}" ${codeFilePath} -parameters`);
             //console.log('Output -> ' + stdout);
             silencedMsg = silencedMsg = this.JAVA_TOOLS_OPTIONS_errorSilence(stderr);
-            this.filterErrorMessage(silencedMsg, codeFilePath);
+            silencedMsg = this.removeFileDirFromErrorMassage(silencedMsg, codeFilePath);
 
         } catch (e) {
             silencedMsg = this.JAVA_TOOLS_OPTIONS_errorSilence(e.stderr ? e.stderr : e);
-            silencedMsg = this.filterErrorMessage(silencedMsg, codeFilePath);
+            silencedMsg = this.removeFileDirFromErrorMassage(silencedMsg, codeFilePath);
             console.log(' ********* from compileJava after ********* \n' + silencedMsg);
 
         }
@@ -144,14 +144,19 @@ class JavaService {
         return silencedMessage;
     }
 
-    filterErrorMessage(javaCompilerError, dirToRemove) {
-        console.log('filterErrorMessage ' + typeof javaCompilerError)
-        if(typeof javaCompilerError == 'string') {
-            const dir = path.normalize(dirToRemove);
-            console.log('filterErrorMessage ' + dir)
-            return javaCompilerError.replace(new RegExp(dirToRemove, 'g'), 'line ');
-        } 
-        return javaCompilerError;
+    removeFileDirFromErrorMassage(errorMassage, dirToRemove) {
+        if(typeof errorMassage == 'string') {
+            // normalize the path to contain only '/'
+            const normalizeDir = path.normalize(dirToRemove); 
+            // spilt errors to array
+            let errorsArray = errorMassage.split(normalizeDir); 
+            // prefix every error with 'line ' and join all to one string 
+            let filteredErrors = errorsArray.join('line '); 
+            return filteredErrors;
+        } else {
+            // errorMassage not from type string, return value unchange.
+            return javaCompilerError;
+        }
 
     }
 }
