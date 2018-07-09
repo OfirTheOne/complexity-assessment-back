@@ -149,8 +149,7 @@ class JavaService {
         if(typeof javaCompilerError == 'string') {
             const dir = path.normalize(dirToRemove);
             console.log('filterErrorMessage ' + dir)
-
-            return javaCompilerError.replace(dir, 'line ');
+            return javaCompilerError.replace(new RegExp(dirToRemove, 'g'), 'line ');
         } 
         return javaCompilerError;
 
