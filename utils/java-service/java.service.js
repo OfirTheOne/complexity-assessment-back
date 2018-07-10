@@ -155,7 +155,7 @@ class JavaService {
             return filteredErrors;
         } else {
             // errorMassage not from type string, return value unchange.
-            return javaCompilerError;
+            return errorMassage;
         }
 
     }

@@ -53,7 +53,7 @@ class AnalysisService {
         } catch (error) {
             console.warn('**** analysisProcces fail in step 3. ****')
             console.error(error);
-            fileService.removeDirRecursive(dir);
+            fileService.removeDirRecursive(this.analysisPaths.tmpReqIdFolder);
             throw error;// new Error('analysisProcces fail in step 3.');
         }
 
@@ -84,7 +84,7 @@ class AnalysisService {
         try {
             const asRes = await this.runAS(id);
             asRes? console.log(asRes.complexity) : null;
-            fileService.removeDirRecursive(dir);
+            fileService.removeDirRecursive(this.analysisPaths.tmpReqIdFolder);
             return asRes;
         } catch (error) {
             console.warn('**** analysisProcces fail in step 6. ****')
